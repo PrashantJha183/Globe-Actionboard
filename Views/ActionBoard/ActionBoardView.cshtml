@@ -1,0 +1,90 @@
+﻿@model RSuite.UserInterface.Web.Mvc.Models.Common.ActionBoard.ActionBoardViewModel
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="base-url" content="@Url.Content("~/")" />
+    <title>@(Model.Name ?? "Dashboard")</title>
+    @Scripts.Render("~/bundles/jquery")
+    <script src="~/Scripts/action-board.js"></script>
+    <link href="~/Content/JQueryUi.css" rel="stylesheet" type="text/css" />
+    <link href="~/Scripts/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/action-board.css" rel="stylesheet" />
+    @*<style>
+        #ttToastContainer { position: fixed; top: 16px; right: 16px; z-index: 99999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .tt-toast { padding: 12px 20px; border-radius: 8px; font-size: 14px; color: #fff; min-width: 280px; max-width: 420px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); animation: ttToastIn 0.3s ease-out; pointer-events: auto; }
+        .tt-toast-error { background: #dc2626; }
+        .tt-toast-success { background: #16a34a; }
+        .tt-toast-info { background: #2563eb; }
+        .tt-toast-warning { background: #ea580c; }
+        @keyframes ttToastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>*@
+</head>
+<body>
+    @try
+    {
+        <div class="tt-header">
+            <div class="tt-header-left">
+                <div class="tt-header-title">@(Model.Name ?? "Dashboard")</div>
+                <div class="tt-header-subtitle">@(Model.Description ?? "")</div>
+            </div>
+            <div class="tt-header-right">
+                <i class="fa fa-moon-o tt-theme-icon" id="themeToggle"></i>
+            </div>
+        </div>
+        <div class="tt-tabs" id="tabContainer">
+            @if (Model.NavigationTabs != null)
+            {
+                foreach (var tab in Model.NavigationTabs)
+                {
+                    var isActive = false;
+                    try { isActive = tab.IsDefault; } catch { }
+                    <div class="tt-tab @(isActive ? "tt-active" : "")" data-group-id="@tab.Id">@(tab.Name ?? "")</div>
+                }
+            }
+        </div>
+        <div class="tt-card-grid-wrapper">
+            <div class="tt-card-grid" id="cardGrid">
+                <div class="tt-skeleton-card"><div class="tt-skeleton-icon"></div><div class="tt-skeleton-title"></div><div class="tt-skeleton-label"></div><div class="tt-skeleton-count"></div><div class="tt-skeleton-arrow"></div></div>
+                <div class="tt-skeleton-card"><div class="tt-skeleton-icon"></div><div class="tt-skeleton-title"></div><div class="tt-skeleton-label"></div><div class="tt-skeleton-count"></div><div class="tt-skeleton-arrow"></div></div>
+                <div class="tt-skeleton-card"><div class="tt-skeleton-icon"></div><div class="tt-skeleton-title"></div><div class="tt-skeleton-label"></div><div class="tt-skeleton-count"></div><div class="tt-skeleton-arrow"></div></div>
+                <div class="tt-skeleton-card"><div class="tt-skeleton-icon"></div><div class="tt-skeleton-title"></div><div class="tt-skeleton-label"></div><div class="tt-skeleton-count"></div><div class="tt-skeleton-arrow"></div></div>
+                <div class="tt-skeleton-card"><div class="tt-skeleton-icon"></div><div class="tt-skeleton-title"></div><div class="tt-skeleton-label"></div><div class="tt-skeleton-count"></div><div class="tt-skeleton-arrow"></div></div>
+                <div class="tt-skeleton-card"><div class="tt-skeleton-icon"></div><div class="tt-skeleton-title"></div><div class="tt-skeleton-label"></div><div class="tt-skeleton-count"></div><div class="tt-skeleton-arrow"></div></div>
+            </div>
+        </div>
+        <div id="reportPanel" class="tt-report-panel" style="display:none;">
+            <div class="tt-report-header">
+                <button class="tt-report-back-btn" onclick="ActionBoard.closeReportPanel()">
+                    <i class="fa fa-arrow-left"></i> Back
+                </button>
+                <span id="reportTitle" class="tt-report-title"></span>
+                <div id="reportIcon" class="tt-report-icon"></div>
+            </div>
+            <iframe id="panelReportFrame" style="width:100%; height:calc(78vh - 170px); border:none;"></iframe>
+            <div id="ttPagination" class="tt-report-pagination"></div>
+        </div>
+    }
+    catch (Exception ex)
+    {
+            <div class="tt-card-grid-wrapper">
+            <div class="tt-card-grid" style="grid-column:1/-1;text-align:center;padding:60px 20px;">
+                <div style="font-size:48px;color:var(--text-secondary);opacity:0.5;margin-bottom:12px;">
+                    <i class="fa fa-exclamation-triangle"></i>
+                </div>
+                <div style="font-size:20px;font-weight:600;color:var(--text-primary);margin-bottom:8px;">
+                    Dashboard Unavailable
+                </div>
+                <div style="font-size:14px;color:var(--text-secondary);">
+                    Unable to load the dashboard. Please try refreshing the page.
+                </div>
+            </div>
+        </div>
+    }
+    <div id="ttToastContainer"></div>
+</body>
+</html>
