@@ -57,7 +57,7 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
                     ? vm.NavigationTabs[0].Name
                     : "";
                 vm.Cards = new List<PendingTaskCard>();
-                return View("~/Views/ActionBoard/ActionBoardView.cshtml", vm);
+                return View("~/_ActionBoard/views/ActionBoardView.cshtml", vm);
             }
             catch (Exception ex)
             {
@@ -72,7 +72,7 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
                     NavigationTabs = new List<NavigationTab>(),
                     Cards = new List<PendingTaskCard>()
                 };
-                return View("~/Views/ActionBoard/ActionBoardView.cshtml", fallback);
+                return View("~/_ActionBoard/views/ActionBoardView.cshtml", fallback);
             }
         }
 

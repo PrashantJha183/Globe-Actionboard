@@ -17,12 +17,12 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
             if (ds == null || ds.Tables.Count == 0)
                 return Content("Report data not found or session expired.");
 
-            return View("~/Views/ActionBoard/ActionBoardItemInfoTableView.cshtml", ds);
+            return View("~/_ActionBoard/views/ActionBoardItemInfoTableView.cshtml", ds);
         }
 
         public ActionResult Loading()
         {
-            return View("~/Views/ActionBoard/ActionBoardLoading.cshtml");
+            return View("~/_ActionBoard/views/ActionBoardLoading.cshtml");
         }
     }
 }
