@@ -24,24 +24,23 @@ Built with **jQuery** and designed for seamless integration into **ASP.NET MVC**
 ```text
 ActionBoard
 │
-├── AppCode
-│   └── Service
-│       └── ActionBoardService.cs
+├── services
+│   └── ActionBoardService.cs
 │
-├── Content
+├── styles
 │   └── action-board.css
 │
-├── Controllers
+├── controllers
 │   ├── ActionBoardController.cs
 │   └── ActionBoardItemInfoTableController.cs
 │
-├── Models
+├── models
 │   └── ActionBoardModels.cs
 │
-├── Scripts
+├── scripts
 │   └── action-board.js
 │
-└── Views
+└── views
     ├── ActionBoardView.cshtml
     ├── ActionBoardItemInfoTableView.cshtml
     └── ActionBoardLoading.cshtml
