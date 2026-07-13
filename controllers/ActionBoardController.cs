@@ -21,6 +21,7 @@ using RSuite.Infrastructure.Specification.Common.Link;
 using RSuite.Domain.Common.Link;
 using RSuite.Domain.Common.Finance;
 using RSuite.Infrastructure.Specification.Common.Finance;
+using RSuite.Infrastructure.Core.Helper;
 
 namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
 {
@@ -37,15 +38,12 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
             ILoginContextService LoginContextService,
             IReportingService ReportingService,
             IFinancialYearService FinancialYearService)
-
-            
         {
             _dal = DAL;
             _loginContextService = LoginContextService;
             _reportingService = ReportingService;
             _service = new ActionBoardService(_dal);
             _financialYearService = FinancialYearService;
-
         }
 
         public async Task<ActionResult> Index()
@@ -83,7 +81,10 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
             {
                 var userId = _loginContextService.GetLoginContext().UserId;
                 var cards = await Task.Run(() => _service.GetCards(groupId, userId));
+                //cards = cards.OrderBy(c => c.DisplayOrder).ToList();
                 return Json(new { success = true, data = cards }, JsonRequestBehavior.AllowGet);
+
+          
             }
             catch (Exception ex)
             {
@@ -96,55 +97,6 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
         {
             _loginContextService.SetLoginContext(lc.UserId, lc.LoginName, lc.LocationId, lc.YearCode, lc.CompanyId);
         }
-
-
-        //[System.Web.Mvc.HttpGet]
-        //public async Task<ActionResult> RunCardReport(int reportId)
-        //{
-        //    try
-        //    {
-        //        if (reportId <= 0)
-        //            return Json(new { success = false, message = "Invalid report configuration." },
-        //                        JsonRequestBehavior.AllowGet);
-
-        //        var ctx = System.Web.HttpContext.Current;
-        //        var lc = _loginContextService.GetLoginContext();
-
-        //        IQueryExecutor queryExecutor = EntityFactory.GetInstance<IQueryExecutor>();
-        //        ReportQueryService reportQueryExecutor = EntityFactory.GetInstance<ReportQueryService>();
-        //        Report report = queryExecutor.ExecuteQuery<Report>("ReportId = " + reportId, 0, 0).FirstOrDefault();
-        //        report = reportQueryExecutor.GetReportByReferenceLinkId(report.ReferenceLinkId);
-
-        //        var result = await Task.Run(() =>
-        //        {
-        //            System.Web.HttpContext.Current = ctx;
-        //            setlogincontext(lc);  
-
-        //            DataSet reportData = _reportingService.GenerateReport(report.ReferenceLinkId, report.Code, report.ReportFilterColumnCollection, report.ReportColumnCollection);
-
-        //            string sessionKey = "AB_Rpt_" + reportId + "_" + DateTime.Now.Ticks;
-        //            SessionDataHandler.Save(sessionKey, reportData);
-        //            string url = Url.Action("Index", "Report", new { SessionKey = sessionKey, LinkId = report.ReferenceLinkId, UserId = lc.UserId, ReportId = reportId });
-        //            return new { sessionKey, url };
-        //        });
-      
-        //        return Json(new { success = true, url = result.url }, JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (InvalidOperationException ex)
-        //    {
-        //        EntityFactory.GetInstance<IErrorLogger>()
-        //            .LogError("ActionBoard.RunCardReport.Config", ex);
-        //        return Json(new { success = false, message = ex.Message },
-        //                    JsonRequestBehavior.AllowGet);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        EntityFactory.GetInstance<IErrorLogger>()
-        //            .LogError("ActionBoard.RunCardReport", ex);
-        //        return Json(new { success = false, message = ex.Message },
-        //                    JsonRequestBehavior.AllowGet);
-        //    }
-        //}
 
         [System.Web.Mvc.HttpGet]
         public async Task<ActionResult> RunWorkFlowApproval(int configId, int reportId)
@@ -179,13 +131,16 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
                     if (linkItem == null)
                         return Json(new { success = false, message = "LinkItem not found." }, JsonRequestBehavior.AllowGet);
 
-                    string addUrl = linkItem.AddUrl ?? "";
+                    if (string.IsNullOrEmpty(linkItem.AddUrl))
+                        return Json(new { success = false, message = "AddUrl not configured for this LinkItem." }, JsonRequestBehavior.AllowGet);
+
+                    string AddUrl = linkItem.AddUrl;
                     LoginContext lcl = _loginContextService.GetLoginContext();
                     FinancialYear fy = _financialYearService.GetFinancialYearByCode(lcl.YearCode, lcl.CompanyId);
                     string fromDate = fy.FinancialStartDate.ToString("dd/MM/yyyy");
                     string toDate = DateTime.Now.Date.ToString("dd/MM/yyyy");
-                    string separator = addUrl.Contains("?") ? "&" : "?";
-                    string url = addUrl + separator
+                    string separator = AddUrl.Contains("?") ? "&" : "?";
+                    string url = AddUrl + separator
                         + "LinkId=" + linkId
                         + "&LinkItemId=" + linkItemId
                         + "&FromDate=" + Uri.EscapeDataString(fromDate)
@@ -216,13 +171,39 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
 
                 int reportLinkId = report.ReferenceLinkId;
                 report = reportQueryExecutor.GetReportByReferenceLinkId(reportLinkId);
+                IList<ReportColumn> reportColumns = new List<ReportColumn>();
+                foreach(ReportColumn rc in report.ReportColumnCollection)
+                {
+                    ReportColumn addRC = new ReportColumn();
+                    CoreHelper.LoadData(rc, addRC);
+                    addRC.Uid = 0;
+                    SessionDataHandler.AddToCollection(addRC, reportColumns);
+                }
+
+                if (reportColumns.Count == 0)
+                    return Json(new { success = false, message = "No report columns configured." }, JsonRequestBehavior.AllowGet);
+
+                ReportColumn addUrl = new ReportColumn();
+                addUrl.ReportColumnId = 16657;
+                addUrl.TableColumnName = "AddUrl";
+                addUrl.DisplayColumnName = "AddUrl";
+                addUrl.IsDefaultColumn = true;
+                addUrl.DataType = "string";
+                addUrl.IsSqlParameter = false;
+                addUrl.ReportId = 940;
+                addUrl.GroupType = "";
+                addUrl.GroupIndex = 0;
+                addUrl.SearchQuery = "";
+                addUrl.SrNo = 25;
+                addUrl.IsFilterColumn = true;
+                SessionDataHandler.AddToCollection(addUrl, reportColumns);
 
                 var result = await Task.Run(() =>
                 {
                     System.Web.HttpContext.Current = ctx;
                     setlogincontext(lc);
 
-                    DataSet reportData = _reportingService.GenerateReport(reportLinkId, report.Code, report.ReportFilterColumnCollection, report.ReportColumnCollection);
+                    DataSet reportData = _reportingService.GenerateReport(reportLinkId, report.Code, report.ReportFilterColumnCollection, reportColumns);
 
                     string sessionKey = "AB_Rpt_" + reportId + "_" + DateTime.Now.Ticks;
                     SessionDataHandler.Save(sessionKey, reportData);
@@ -244,18 +225,6 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
                 }, JsonRequestBehavior.AllowGet);
             }
         }
-
-        /* OLD:
-        [HttpGet]
-        public ActionResult GetAddUrlByLinkId(int linkId)
-        {
-            var linkService = EntityFactory.GetInstance<ILinkService>();
-            var linkItem = linkService.GetLinkItem(linkId);
-            var linkUrlService = new LinkUrlService();
-            string url = linkUrlService.GetAddUrl(linkId);
-            return Json(new { itemUrl = url, itemId = linkId, itemName = linkItem.LinkItemName ?? "" }, JsonRequestBehavior.AllowGet);
-        }
-        */
 
         [HttpGet]
         public async Task<ActionResult> GetAddUrlByLinkId(int linkId)

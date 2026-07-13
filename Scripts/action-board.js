@@ -69,8 +69,7 @@ var ActionBoard = (function ($) {
             $('#tabContainer').on('click', '.tt-tab', function () {
                 $('#tabContainer .tt-tab').removeClass('tt-active');
                 $(this).addClass('tt-active');
-                showSkeletons();
-                loadCards($(this).data('group-id'));
+                loadCards($(this).data('group-id'), false);
             });
         } catch (e) {
         }
@@ -113,9 +112,9 @@ var ActionBoard = (function ($) {
         }
     }
 
-    function loadCards(groupId) {
+    function loadCards(groupId, showSkeleton) {
         try {
-            showSkeletons();
+            if (showSkeleton !== false) showSkeletons();
             $('#cardGrid').off('click', '.card-run-report');
             $.ajax({
                 url: baseUrl + 'ActionBoard/GetCards',
@@ -164,6 +163,9 @@ var ActionBoard = (function ($) {
                             html += '</div>';
                         });
                         $('#cardGrid').html(html);
+                        $('#cardGrid .tt-card').each(function (i) {
+                            $(this).css('animation-delay', (i * 0.06) + 's');
+                        });
                         bindReportArrows();
                     } catch (e) {
                         showError('An error occurred while rendering the dashboard.');

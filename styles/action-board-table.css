@@ -1,0 +1,277 @@
+/* ==========================================
+   GRID TABLE — Liquid Glass
+   Used by ActionBoardItemInfoTableView
+========================================== */
+
+.tt-grid-table-wrap {
+  background: var(--card-surface);
+  transition: background 0.3s ease;
+  overflow-x: auto;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-secondary) var(--surface);
+}
+
+.tt-grid-table-wrap::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.tt-grid-table-wrap::-webkit-scrollbar-track {
+  background: var(--surface);
+  border-radius: 3px;
+}
+
+.tt-grid-table-wrap::-webkit-scrollbar-thumb {
+  background: var(--text-secondary);
+  border-radius: 3px;
+}
+
+.tt-grid-table {
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 12px;
+}
+
+.tt-grid-table thead tr th {
+  font-weight: 700;
+  padding: 12px 16px;
+  text-align: left;
+  white-space: nowrap;
+  color: var(--text-primary);
+  transition: color 0.3s ease, background 0.3s ease;
+  font-size: 13px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f0f2f5;
+}
+
+[data-theme="dark"] .tt-grid-table thead tr th {
+  background: #1e2028;
+}
+
+    .tt-grid-table tbody tr td {
+        padding: 12px 16px;
+        color: var(--text-secondary);
+        transition: color 0.3s ease;
+        white-space: normal;
+        word-break: break-word;
+        line-height: 1.4;
+        vertical-align: top;
+    }
+
+.tt-grid-table tbody tr {
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.tt-grid-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+
+.tt-grid-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+[data-theme="dark"] .tt-grid-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .tt-grid-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ==========================================
+   GRID PAGINATION — Liquid Glass
+   Client-side pagination for grid tables
+========================================== */
+
+.tt-grid-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 4px;
+  gap: 4px;
+}
+
+.tt-grid-page-btn,
+.tt-grid-page-arrow {
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  padding: 6px 10px;
+  cursor: pointer;
+  min-width: 32px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.tt-grid-page-btn {
+  border: none;
+  background: none;
+  position: static;
+  overflow: visible;
+}
+
+.tt-grid-page-btn.tt-active {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    0 4px 12px rgba(15, 23, 42, 0.06);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  font-weight: 600;
+}
+
+.tt-grid-page-btn.tt-active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+.tt-grid-page-arrow {
+  background: transparent;
+  border: none;
+}
+
+.tt-grid-page-btn:hover,
+.tt-grid-page-arrow:hover {
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .tt-grid-page-btn.tt-active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .tt-grid-page-btn.tt-active::before {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+}
+
+.tt-grid-page-btn:disabled,
+.tt-grid-page-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.tt-grid-page-dots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  padding: 6px 2px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: default;
+  user-select: none;
+}
+
+.tt-empty-state {
+  background: var(--card-surface);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  box-shadow: var(--card-shadow);
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-secondary);
+  transition: background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tt-empty-state i {
+  font-size: 48px;
+  opacity: 0.4;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.tt-empty-state div {
+  font-size: 14px;
+}
+
+/* ==========================================
+   GRID ACTION BUTTON — Liquid Glass
+   Styled <a> links inside grid tables
+========================================== */
+
+.tt-grid-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.42);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    0 4px 12px rgba(15, 23, 42, 0.06);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  text-underline-offset: 0;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+
+.tt-grid-action-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  border-radius: 10px 10px 0 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0)
+  );
+  pointer-events: none;
+}
+
+.tt-grid-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    0 8px 20px rgba(15, 23, 42, 0.1);
+}
+
+[data-theme="dark"] .tt-grid-action-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .tt-grid-action-btn::before {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0)
+  );
+}
