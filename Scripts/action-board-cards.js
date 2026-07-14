@@ -156,22 +156,26 @@
                             return;
                         }
                         var html = '';
-                        var cardColors = ['#10b981','#2563eb','#8b5cf6','#f97316','#7c3aed','#14b8a6'];
+                        var cardColors = ['#10b981','#2563eb','#8b5cf6','#f97316','#7c3aed','#14b8a6','#e11d48','#0891b2','#ca8a04','#9333ea'];
+                        function seededShuffle(a, seed) { var s = a.slice(); var rng = function () { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }; for (var i = s.length - 1; i > 0; i--) { var j = Math.floor(rng() * (i + 1)); var t = s[i]; s[i] = s[j]; s[j] = t; } return s; }
+                        var shuffledColors = seededShuffle(cardColors, groupId);
                         $.each(cards, function (i, c) {
                             var icon = c && c.Icon ? c.Icon : 'fa-file-text-o';
                             var title = c && c.Title ? c.Title : '';
                             var count = (c && c.Count !== undefined && c.Count !== null) ? c.Count : 0;
+                            var color = shuffledColors[i % 10];
+                            var rgb = ActionBoard.hexToRgb(color);
                             if (c.ReportId && c.ReportId > 0) {
-                                html += '<div class="tt-card card-run-report" data-config-id="' + c.Id + '" data-report-id="' + c.ReportId + '" data-report-title="' + $('<div>').text(title).html() + '" data-report-icon="' + icon.replace(/'/g, '') + '" data-report-color="' + cardColors[i % 6] + '">';
+                                html += '<div class="tt-card card-run-report" data-config-id="' + c.Id + '" data-report-id="' + c.ReportId + '" data-report-title="' + $('<div>').text(title).html() + '" data-report-icon="' + icon.replace(/'/g, '') + '" data-report-color="' + color + '">';
 
                             } else {
                                 var route = c && c.Route ? c.Route : '#';
                                 html += '<div class="tt-card" onclick="window.location.href=\'' + route.replace(/'/g, '') + '\'">';
                             }
-                            html += '<div class="tt-card-icon-wrap"><i class="fa ' + icon.replace(/'/g, '') + '"></i></div>';
+                            html += '<div class="tt-card-icon-wrap" style="color:' + color + ';background:rgba(' + rgb + ',0.1);box-shadow:inset 0 1px 1px rgba(255,255,255,0.7),0 12px 24px rgba(' + rgb + ',0.1)"><i class="fa ' + icon.replace(/'/g, '') + '"></i></div>';
                             html += '<div class="tt-card-title">' + $('<div>').text(title).html() + '</div>';
                             html += '<div class="tt-card-row2">';
-                            html += '<div class="tt-card-count">' + count + '</div>';
+                            html += '<div class="tt-card-count" style="color:' + color + '">' + count + '</div>';
                             var amount = (c.Amount !== undefined && c.Amount !== null) ? parseFloat(c.Amount) : 0;
                             if (amount > 0) {
                                 html += '<div class="tt-card-amount">';
@@ -336,6 +340,33 @@
             });
         } catch (e) { }
     }
+
+    /* ==========================================
+       CLEANUP — called by ActionBoard.destroy()
+       ========================================== */
+
+    /* ------------------------------------------
+       _cleanupCards() — resets all card module
+       state, removes event listeners, clears
+       DOM content, and aborts pending timers.
+       ------------------------------------------ */
+    ActionBoard._cleanupCards = function _cleanupCards() {
+        try {
+            clearTimeout(tabTimer);
+            $('#tabContainer').off('click', '.tt-tab');
+            $('#cardGrid').off('click', '.card-run-report');
+            $('#reportPanel').hide();
+            var f = document.getElementById('panelReportFrame');
+            if (f) { f.src = ''; f.onload = null; f.classList.remove('tt-frame-loaded'); }
+            var s = document.getElementById('reportTableSkeleton');
+            if (s) s.style.display = 'none';
+            var p = document.getElementById('ttPagination');
+            if (p) p.innerHTML = '';
+            $('#cardGrid').html('');
+            retryCount = 0;
+            baseUrl = '';
+        } catch (e) { }
+    };
 
     /* ==========================================
        RETRY — called from error boundary button

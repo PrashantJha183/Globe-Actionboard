@@ -92,7 +92,7 @@ namespace RSuite.UserInterface.Web.Mvc.AppCode.Service.ActionBoard
                     }
                 }).ToList();
 
-var configIds = string.Join(",", cards.Where(c => c.Id > 0).Select(c => c.Id));
+                var configIds = string.Join(",", cards.Where(c => c.Id > 0).Select(c => c.Id));
                 if (!string.IsNullOrEmpty(configIds))
                 {
                     var iconDs = new DataSet();
@@ -103,13 +103,7 @@ var configIds = string.Join(",", cards.Where(c => c.Id > 0).Select(c => c.Id));
                     }
                     else
                     {
-                        _dal.RunQuery(@"
-SELECT c.ActionBoardConfigId, c.Icon, c.ReportId,
-       ISNULL(SUM(d.Amount), 0) AS Amount
-FROM ActionBoardConfig c
-LEFT JOIN ActionBoardConfigDisplay d ON c.ActionBoardConfigId = d.ActionBoardConfigId
-WHERE c.ActionBoardConfigId IN (" + configIds + @")
-GROUP BY c.ActionBoardConfigId, c.Icon, c.ReportId", ref iconDs);
+                        _dal.RunQuery(@"SELECT c.ActionBoardConfigId, c.Icon, c.ReportId, ISNULL(SUM(d.Amount), 0) AS Amount FROM ActionBoardConfig c LEFT JOIN ActionBoardConfigDisplay d ON c.ActionBoardConfigId = d.ActionBoardConfigId WHERE c.ActionBoardConfigId IN (" + configIds + @") GROUP BY c.ActionBoardConfigId, c.Icon, c.ReportId", ref iconDs);
                     }
 
                     if (iconDs.Tables.Count > 0 && iconDs.Tables[0].Rows.Count > 0)

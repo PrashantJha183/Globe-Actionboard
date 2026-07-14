@@ -113,4 +113,18 @@
         } catch (e) { }
     };
 
+    /* ------------------------------------------
+       _cleanupGrid() — removes global functions
+       and variables added for grid pagination
+       and action buttons. Called by ActionBoard.destroy().
+       ------------------------------------------ */
+    ActionBoard._cleanupGrid = function _cleanupGrid() {
+        try {
+            delete window.getRowCount;
+            delete window.goToPage;
+            delete window.AddUrlByLinkId;
+            delete window._addUrlByLinkIdEndpoint;
+        } catch (e) { }
+    };
+
 })(jQuery);

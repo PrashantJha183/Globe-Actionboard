@@ -101,4 +101,15 @@
         } catch (e) { }
     };
 
+    /* ------------------------------------------
+       _cleanupReport() — removes pagination
+       click handler. Called by ActionBoard.destroy().
+       ------------------------------------------ */
+    ActionBoard._cleanupReport = function _cleanupReport() {
+        try {
+            var c = document.getElementById('ttPagination');
+            if (c) c.onclick = null;
+        } catch (e) { }
+    };
+
 })(jQuery);

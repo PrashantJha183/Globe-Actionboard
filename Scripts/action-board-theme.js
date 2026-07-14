@@ -72,13 +72,25 @@
        on any element with .tt-theme-icon class.
        Uses event delegation on document so it
        works even if the toggle is added later.
+       Stores handler reference for cleanup.
        ------------------------------------------ */
+    var _themeHandler = function (e) {
+        if (e.target.classList.contains('tt-theme-icon')) {
+            ActionBoard.toggleTheme();
+        }
+    };
+
     ActionBoard.bindThemeToggle = function bindThemeToggle() {
-        document.addEventListener('click', function (e) {
-            if (e.target.classList.contains('tt-theme-icon')) {
-                ActionBoard.toggleTheme();
-            }
-        });
+        document.addEventListener('click', _themeHandler);
+    };
+
+    /* ------------------------------------------
+       _cleanupTheme() — removes the document
+       click listener for theme toggle.
+       Called by ActionBoard.destroy().
+       ------------------------------------------ */
+    ActionBoard._cleanupTheme = function _cleanupTheme() {
+        document.removeEventListener('click', _themeHandler);
     };
 
 })(jQuery);

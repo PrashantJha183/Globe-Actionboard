@@ -69,3 +69,24 @@ ActionBoard.showToast = function showToast(message, type) {
         }, 3500);
     } catch (e) { }
 };
+
+/* ==========================================
+   DESTROY — master cleanup for SPA use cases
+   ========================================== */
+
+/* ------------------------------------------
+   destroy() — calls all module-level cleanup
+   functions to remove event listeners, reset
+   state, clear DOM, and prevent memory leaks
+   when the dashboard is unmounted.
+   ------------------------------------------ */
+ActionBoard.destroy = function destroy() {
+    try {
+        if (ActionBoard._cleanupTheme) ActionBoard._cleanupTheme();
+        if (ActionBoard._cleanupCards) ActionBoard._cleanupCards();
+        if (ActionBoard._cleanupReport) ActionBoard._cleanupReport();
+        if (ActionBoard._cleanupGrid) ActionBoard._cleanupGrid();
+        var tc = document.getElementById('ttToastContainer');
+        if (tc) tc.innerHTML = '';
+    } catch (e) { }
+};
