@@ -1,6 +1,8 @@
 /* ==========================================
-   GRID TABLE — Liquid Glass
-   Used by ActionBoardItemInfoTableView
+   action-board-table.css
+   Grid table, table pagination, empty state,
+   action button styles
+   Used by: ActionBoardView, ActionBoardItemInfoTableView
 ========================================== */
 
 .tt-grid-table-wrap {

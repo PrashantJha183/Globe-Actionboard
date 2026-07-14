@@ -1,0 +1,229 @@
+/* ==========================================
+   action-board-common.css
+   Shared styles: reset, theme variables, base layout,
+   theme toggle, shimmer loading, toast notifications
+   Used by: All ActionBoard views
+========================================== */
+
+/* ==========================================
+   GLOBAL RESET
+========================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ==========================================
+   CSS CUSTOM PROPERTIES — Light theme (default)
+========================================== */
+
+:root {
+  --bg: #eef2f7;
+  --surface: rgba(255, 255, 255, 0.32);
+  --surface-border: rgba(255, 255, 255, 0.65);
+  --card-surface: rgba(255, 255, 255, 0.28);
+  --card-border: rgba(255, 255, 255, 0.6);
+  --card-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.55), 0 8px 24px rgba(15, 23, 42, 0.03);
+  --card-hover-shadow: 0 20px 48px rgba(15, 23, 42, 0.07);
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --active-tab: #2563eb;
+  --icon-bubble-bg: rgba(255, 255, 255, 0.45);
+  --icon-bubble-border: rgba(255, 255, 255, 0.55);
+  --arrow-bg: rgba(255, 255, 255, 0.3);
+  --arrow-border: rgba(255, 255, 255, 0.4);
+  --arrow-color: #334155;
+  --avatar-border: rgba(255, 255, 255, 0.5);
+}
+
+/* ==========================================
+   DARK THEME OVERRIDES
+========================================== */
+
+[data-theme="dark"] {
+  --bg: #080f1e;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-border: rgba(255, 255, 255, 0.06);
+  --card-surface: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(255, 255, 255, 0.6);
+  --card-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 12px 32px rgba(0, 0, 0, 0.4);
+  --card-hover-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --active-tab: #60a5fa;
+  --icon-bubble-bg: rgba(255, 255, 255, 0.06);
+  --icon-bubble-border: rgba(255, 255, 255, 0.1);
+  --arrow-bg: rgba(255, 255, 255, 0.04);
+  --arrow-border: rgba(255, 255, 255, 0.08);
+  --arrow-color: #e2e8f0;
+  --avatar-border: rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================
+   BASE LAYOUT — html/body
+========================================== */
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  overflow: auto;
+  font-family: "Verdana", sans-serif;
+  background: var(--bg);
+
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+  transition: background 0.3s ease;
+}
+
+/* ==========================================
+   THEME TOGGLE ICON — Moon/Sun toggle button
+========================================== */
+
+.tt-theme-icon {
+  font-size: 20px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.tt-theme-icon:hover {
+  color: var(--text-primary);
+}
+
+/* ==========================================
+   SHIMMER LOADING — Skeleton animation for loading states
+========================================== */
+
+.tt-shimmer-card {
+  background: var(--card-surface);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  box-shadow: var(--card-shadow);
+  padding: 20px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+.tt-shimmer-row {
+  height: 14px;
+  border-radius: 7px;
+  background: var(--text-secondary);
+  opacity: 0.1;
+  margin-bottom: 12px;
+}
+
+.tt-shimmer-row:last-child { margin-bottom: 0; }
+
+.tt-shimmer-row.w60 { width: 60%; }
+.tt-shimmer-row.w40 { width: 40%; }
+.tt-shimmer-row.w80 { width: 80%; }
+.tt-shimmer-row.w30 { width: 30%; }
+.tt-shimmer-row.w50 { width: 50%; }
+.tt-shimmer-row.h10 { height: 10px; }
+.tt-shimmer-row.h24 { height: 24px; border-radius: 8px; }
+
+.tt-shimmer-card::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  animation: tt-shimmer 1.5s infinite;
+}
+
+@keyframes tt-shimmer {
+  100% { left: 100%; }
+}
+
+/* ==========================================
+   TOAST NOTIFICATIONS — Info/Error/Success/Warning
+========================================== */
+
+#ttToastContainer {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.tt-toast {
+    padding: 12px 20px;
+    border-radius: 14px;
+    font-size: 14px;
+    color: #fff;
+    min-width: 280px;
+    max-width: 420px;
+    box-shadow: var(--card-shadow);
+    animation: ttToastIn 0.3s ease-out;
+    pointer-events: auto;
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--card-border);
+    position: relative;
+    overflow: hidden;
+}
+
+.tt-toast::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.18), transparent);
+    pointer-events: none;
+}
+
+.tt-toast-error {
+    background: rgba(220, 38, 38, 0.35);
+    border-color: rgba(220, 38, 38, 0.5);
+}
+
+.tt-toast-success {
+    background: rgba(22, 163, 74, 0.35);
+    border-color: rgba(22, 163, 74, 0.5);
+}
+
+.tt-toast-info {
+    background: rgba(37, 99, 235, 0.35);
+    border-color: rgba(37, 99, 235, 0.5);
+}
+
+.tt-toast-warning {
+    background: rgba(234, 88, 12, 0.35);
+    border-color: rgba(234, 88, 12, 0.5);
+}
+
+[data-theme="dark"] .tt-toast {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .tt-toast::before {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.08), transparent);
+}
+
+@keyframes ttToastIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

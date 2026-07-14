@@ -10,10 +10,16 @@
     <meta name="base-url" content="@Url.Content("~/")" />
     <title>@(Model.Name ?? "Dashboard")</title>
     @Scripts.Render("~/bundles/jquery")
-    <script src="~/_ActionBoard/scripts/action-board.js"></script>
+    <script src="~/_ActionBoard/scripts/action-board-core.js"></script>
+    <script src="~/_ActionBoard/scripts/action-board-theme.js"></script>
+    <script src="~/_ActionBoard/scripts/action-board-report.js"></script>
+    <script src="~/_ActionBoard/scripts/action-board-cards.js"></script>
+    <script src="~/_ActionBoard/scripts/action-board-grid.js"></script>
     <link href="~/Content/JQueryUi.css" rel="stylesheet" type="text/css" />
     <link href="~/Scripts/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
-    <link href="~/_ActionBoard/styles/action-board.css" rel="stylesheet" />
+    <link href="~/_ActionBoard/styles/action-board-common.css" rel="stylesheet" />
+    <link href="~/_ActionBoard/styles/action-board-cards.css" rel="stylesheet" />
+    <link href="~/_ActionBoard/styles/action-board-report.css" rel="stylesheet" />
     <link href="~/_ActionBoard/styles/action-board-table.css" rel="stylesheet" />
 </head>
 <body>  
@@ -57,7 +63,85 @@
                 <span id="reportTitle" class="tt-report-title"></span>
                 <div id="reportIcon" class="tt-report-icon"></div>
             </div>
+            <div class="tt-report-table-wrap">
             <iframe id="panelReportFrame" style="width:100%; height:calc(78vh - 170px); border:none;"></iframe>
+            <div id="reportTableSkeleton" class="tt-table-skeleton" style="display:none;">
+                <div class="tt-shimmer-table">
+                    <div class="tt-shimmer-table-row tt-shimmer-table-header">
+                        <div class="tt-shimmer-td" style="width:8%"></div>
+                        <div class="tt-shimmer-td" style="width:22%"></div>
+                        <div class="tt-shimmer-td" style="width:15%"></div>
+                        <div class="tt-shimmer-td" style="width:12%"></div>
+                        <div class="tt-shimmer-td" style="width:18%"></div>
+                        <div class="tt-shimmer-td" style="width:10%"></div>
+                        <div class="tt-shimmer-td" style="width:15%"></div>
+                    </div>
+                    <div class="tt-shimmer-table-row">
+                        <div class="tt-shimmer-td" style="width:7%"></div>
+                        <div class="tt-shimmer-td" style="width:20%"></div>
+                        <div class="tt-shimmer-td" style="width:14%"></div>
+                        <div class="tt-shimmer-td" style="width:10%"></div>
+                        <div class="tt-shimmer-td" style="width:16%"></div>
+                        <div class="tt-shimmer-td" style="width:9%"></div>
+                        <div class="tt-shimmer-td" style="width:14%"></div>
+                    </div>
+                    <div class="tt-shimmer-table-row">
+                        <div class="tt-shimmer-td" style="width:6%"></div>
+                        <div class="tt-shimmer-td" style="width:18%"></div>
+                        <div class="tt-shimmer-td" style="width:16%"></div>
+                        <div class="tt-shimmer-td" style="width:11%"></div>
+                        <div class="tt-shimmer-td" style="width:14%"></div>
+                        <div class="tt-shimmer-td" style="width:8%"></div>
+                        <div class="tt-shimmer-td" style="width:17%"></div>
+                    </div>
+                    <div class="tt-shimmer-table-row">
+                        <div class="tt-shimmer-td" style="width:9%"></div>
+                        <div class="tt-shimmer-td" style="width:21%"></div>
+                        <div class="tt-shimmer-td" style="width:13%"></div>
+                        <div class="tt-shimmer-td" style="width:10%"></div>
+                        <div class="tt-shimmer-td" style="width:15%"></div>
+                        <div class="tt-shimmer-td" style="width:11%"></div>
+                        <div class="tt-shimmer-td" style="width:16%"></div>
+                    </div>
+                    <div class="tt-shimmer-table-row">
+                        <div class="tt-shimmer-td" style="width:7%"></div>
+                        <div class="tt-shimmer-td" style="width:19%"></div>
+                        <div class="tt-shimmer-td" style="width:15%"></div>
+                        <div class="tt-shimmer-td" style="width:12%"></div>
+                        <div class="tt-shimmer-td" style="width:17%"></div>
+                        <div class="tt-shimmer-td" style="width:9%"></div>
+                        <div class="tt-shimmer-td" style="width:16%"></div>
+                    </div>
+                    <div class="tt-shimmer-table-row">
+                        <div class="tt-shimmer-td" style="width:8%"></div>
+                        <div class="tt-shimmer-td" style="width:21%"></div>
+                        <div class="tt-shimmer-td" style="width:13%"></div>
+                        <div class="tt-shimmer-td" style="width:11%"></div>
+                        <div class="tt-shimmer-td" style="width:16%"></div>
+                        <div class="tt-shimmer-td" style="width:10%"></div>
+                        <div class="tt-shimmer-td" style="width:17%"></div>
+                    </div>
+                    <div class="tt-shimmer-table-row">
+                        <div class="tt-shimmer-td" style="width:6%"></div>
+                        <div class="tt-shimmer-td" style="width:20%"></div>
+                        <div class="tt-shimmer-td" style="width:14%"></div>
+                        <div class="tt-shimmer-td" style="width:12%"></div>
+                        <div class="tt-shimmer-td" style="width:18%"></div>
+                        <div class="tt-shimmer-td" style="width:9%"></div>
+                        <div class="tt-shimmer-td" style="width:15%"></div>
+                    </div>
+                    <div class="tt-shimmer-table-row">
+                        <div class="tt-shimmer-td" style="width:7%"></div>
+                        <div class="tt-shimmer-td" style="width:18%"></div>
+                        <div class="tt-shimmer-td" style="width:15%"></div>
+                        <div class="tt-shimmer-td" style="width:10%"></div>
+                        <div class="tt-shimmer-td" style="width:15%"></div>
+                        <div class="tt-shimmer-td" style="width:11%"></div>
+                        <div class="tt-shimmer-td" style="width:14%"></div>
+                    </div>
+                </div>
+            </div>
+            </div>
             <div id="ttPagination" class="tt-report-pagination"></div>
         </div>
     }
@@ -78,5 +162,12 @@
         </div>
     }
     <div id="ttToastContainer"></div>
+    <script>
+        $(function () {
+            ActionBoard.applySavedTheme();
+            if (document.getElementById('themeToggle')) ActionBoard.bindThemeToggle();
+            if (document.getElementById('cardGrid')) ActionBoard.init();
+        });
+    </script>
 </body>
 </html>

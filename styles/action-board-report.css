@@ -1,0 +1,270 @@
+/* ==========================================
+   action-board-report.css
+   Report panel shown after card click: panel container,
+   header bar, title, icon, back button, pagination
+   Used by: ActionBoardView
+========================================== */
+
+/* ==========================================
+   REPORT PANEL — Inline table container
+   Appears below the card grid on card click
+========================================== */
+
+.tt-report-panel {
+  background: var(--card-surface);
+  margin-top: 4px;
+  overflow-y: auto;
+  overflow-x: auto;
+  transition: background 0.3s ease;
+}
+
+/* ==========================================
+   REPORT HEADER — Title bar with back button
+========================================== */
+
+/*.tt-report-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--surface-border);
+  transition: background 0.3s ease, border 0.3s ease;
+}*/
+
+.tt-report-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 16px;
+    background: var(--card-surface);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    box-shadow: var(--card-shadow);
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s ease, border 0.3s ease;
+}
+
+.tt-report-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient( to bottom, rgba(255, 255, 255, 0.18), transparent );
+    pointer-events: none;
+}
+
+/* ==========================================
+   REPORT TITLE — Centered report name
+========================================== */
+
+.tt-report-title {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================
+   REPORT ICON — Colored icon bubble
+========================================== */
+
+.tt-report-icon {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    0 4px 12px rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.tt-report-icon::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  border-radius: 10px 10px 0 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.65),
+    rgba(255, 255, 255, 0)
+  );
+  pointer-events: none;
+}
+
+.tt-report-icon i {
+  position: relative;
+  z-index: 2;
+}
+
+[data-theme="dark"] .tt-report-icon {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08), 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .tt-report-icon::before {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0)
+  );
+}
+
+/* ==========================================
+   BACK BUTTON — Return to card grid
+========================================== */
+
+.tt-report-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tt-report-back-btn:hover {
+  background: var(--arrow-bg);
+  border: 1px solid var(--arrow-border);
+}
+
+/* ==========================================
+   REPORT PAGINATION — Page controls
+========================================== */
+
+/*.tt-report-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 3px 16px;
+  gap: 4px;
+  background: var(--surface);
+  border-top: 1px solid var(--surface-border);
+  border-radius: 0 0 18px 18px;
+  transition: background 0.3s ease, border 0.3s ease;
+}*/
+
+.tt-report-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 6px 16px;
+    gap: 4px;
+    background: var(--card-surface);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--card-border);
+  /*  border-top: none;*/
+    border-radius: 18px;
+    box-shadow: var(--card-shadow);
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s ease, border 0.3s ease;
+}
+
+.tt-report-pagination:empty {
+  display: none;
+}
+
+/* ==========================================
+   TABLE SKELETON LOADER — Shimmer while iframe loads
+========================================= */
+
+.tt-report-table-wrap {
+    position: relative;
+}
+.tt-table-skeleton {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    padding: 0;
+}
+.tt-table-skeleton-enter { animation: tt-skel-enter 0.3s ease forwards; }
+.tt-table-skeleton-exit { animation: tt-skel-exit 0.3s ease forwards; }
+
+@keyframes tt-skel-enter {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes tt-skel-exit {
+    from { opacity: 1; }
+    to   { opacity: 0; transform: translateY(-4px); }
+}
+
+/* ==========================================
+   SHIMMER TABLE — Row-and-column skeleton shape
+========================================= */
+
+.tt-shimmer-table {
+    margin-top: 36px;
+    background: var(--card-surface);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 4px 0;
+    position: relative;
+    overflow: hidden;
+}
+.tt-shimmer-table-row {
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--surface-border);
+}
+.tt-shimmer-table-row:last-child { border-bottom: none; }
+.tt-shimmer-td {
+    height: 12px;
+    border-radius: 4px;
+    background: var(--text-secondary);
+    opacity: 0.08;
+}
+.tt-shimmer-table-header .tt-shimmer-td {
+    height: 14px;
+    opacity: 0.12;
+}
+.tt-shimmer-table::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    animation: tt-shimmer 1.5s infinite;
+}
+
+/* ==========================================
+   IFRAME — Hidden until table loads
+========================================= */
+
+#panelReportFrame { opacity: 0; transition: opacity 0.35s ease; }
+#panelReportFrame.tt-frame-loaded { opacity: 1; }
