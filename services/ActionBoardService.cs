@@ -99,11 +99,11 @@ namespace RSuite.UserInterface.Web.Mvc.AppCode.Service.ActionBoard
 
                     if (groupId == 1)
                     {
-                        _dal.RunQuery("SELECT ActionBoardConfigId, Icon, ReportId FROM ActionBoardConfig WHERE ActionBoardConfigId IN (" + configIds + ")", ref iconDs);
+                        _dal.RunQuery("SELECT ActionBoardConfigId, Icon, ReportId, Frequency FROM ActionBoardConfig WHERE ActionBoardConfigId IN (" + configIds + ")", ref iconDs);
                     }
                     else
                     {
-                        _dal.RunQuery(@"SELECT c.ActionBoardConfigId, c.Icon, c.ReportId, ISNULL(SUM(d.Amount), 0) AS Amount FROM ActionBoardConfig c LEFT JOIN ActionBoardConfigDisplay d ON c.ActionBoardConfigId = d.ActionBoardConfigId WHERE c.ActionBoardConfigId IN (" + configIds + @") GROUP BY c.ActionBoardConfigId, c.Icon, c.ReportId", ref iconDs);
+                        _dal.RunQuery(@"SELECT c.ActionBoardConfigId, c.Icon, c.ReportId, c.Frequency, ISNULL(SUM(d.Amount), 0) AS Amount FROM ActionBoardConfig c LEFT JOIN ActionBoardConfigDisplay d ON c.ActionBoardConfigId = d.ActionBoardConfigId WHERE c.ActionBoardConfigId IN (" + configIds + @") GROUP BY c.ActionBoardConfigId, c.Icon, c.ReportId, c.Frequency", ref iconDs);
                     }
 
                     if (iconDs.Tables.Count > 0 && iconDs.Tables[0].Rows.Count > 0)
@@ -111,6 +111,7 @@ namespace RSuite.UserInterface.Web.Mvc.AppCode.Service.ActionBoard
                         var iconMap = new Dictionary<int, string>();
                         var reportIdMap = new Dictionary<int, int>();
                         Dictionary<int, decimal> amountMap = groupId != 1 ? new Dictionary<int, decimal>() : null;
+                        var freqMap = new Dictionary<int, int>();  // stores Frequency per card
                         foreach (DataRow r in iconDs.Tables[0].Rows)
                         {
                             var id = Convert.ToInt32(r["ActionBoardConfigId"]);
@@ -119,6 +120,8 @@ namespace RSuite.UserInterface.Web.Mvc.AppCode.Service.ActionBoard
                                 reportIdMap[id] = Convert.ToInt32(r["ReportId"]);
                             if (amountMap != null && r["Amount"] != DBNull.Value)
                                 amountMap[id] = Convert.ToDecimal(r["Amount"]);
+                            if (r["Frequency"] != DBNull.Value)
+                                freqMap[id] = Convert.ToInt32(r["Frequency"]);
                         }
                         foreach (var card in cards)
                         {
@@ -128,6 +131,8 @@ namespace RSuite.UserInterface.Web.Mvc.AppCode.Service.ActionBoard
                                 card.ReportId = reportIdMap[card.Id];
                             if (amountMap != null && card.Id > 0 && amountMap.ContainsKey(card.Id))
                                 card.Amount = amountMap[card.Id];
+                            if (card.Id > 0 && freqMap.ContainsKey(card.Id))
+                                card.Frequency = freqMap[card.Id];
                         }
                     }
                 }

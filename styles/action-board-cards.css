@@ -49,9 +49,25 @@
   color: var(--text-primary);
 }
 
+.tt-refresh-btn {
+  font-size: 20px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+.tt-refresh-btn:hover {
+  color: var(--active-tab);
+}
+
+.tt-refresh-btn.tt-refresh-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 /* ==========================================
    AVATAR — User avatar circle
-========================================== */
+   ========================================== */
 
 .tt-avatar {
   width: 36px;

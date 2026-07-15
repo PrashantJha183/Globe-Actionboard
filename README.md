@@ -17,6 +17,7 @@ Built with **jQuery** and designed for seamless integration into **ASP.NET MVC**
 | Toast Notifications | Non-intrusive status messages. | Clear user feedback. |
 | Tab Navigation | Category-based dashboard organization. | Easier access to workflows. |
 | Error Handling | Retry mechanism with informative messages. | Improved reliability. |
+| Refresh Button | Per-group card refresh with cooldown timer based on `Frequency` column. | Always up-to-date data without full page reload. |
 ---
 
 **Full technical documentation:** [Action Board Dashboard — Notion](https://app.notion.com/p/Action-Board-Dashboard-38a94ea95aab80d2a580cdd6f0e53b3b)
@@ -39,13 +40,13 @@ _ActionBoard/
 ├── scripts/
 │   ├── action-board-core.js      (namespace, utilities, destroy)
 │   ├── action-board-theme.js     (theme switching)
-│   ├── action-board-cards.js     (card grid, tabs, report panel)
+│   ├── action-board-cards.js     (card grid, tabs, report panel, refresh with cooldown)
 │   ├── action-board-report.js    (iframe pagination)
 │   ├── action-board-grid.js      (grid pagination, action buttons)
 │   └── action-board.js           (deprecated — kept on disk)
 │
 ├── styles/
-│   ├── action-board-common.css   (reset, variables, theme, shimmer, toast)
+│   ├── action-board-common.css   (reset, variables, theme, shimmer, toast, color themes)
 │   ├── action-board-cards.css    (header, tabs, card grid, cards, skeleton, error)
 │   ├── action-board-report.css   (report panel, pagination, table skeleton)
 │   ├── action-board-table.css    (grid table, pagination, action buttons)
@@ -66,15 +67,15 @@ _ActionBoard/
 |:----------|:---------------|
 | `action-board-core.js` | Namespace, FOWT prevention, hexToRgb, showToast, destroy |
 | `action-board-theme.js` | Dark/light theme switching, persistence, sync to iframe |
-| `action-board-cards.js` | Tab navigation, card grid, skeleton loading, report panel open/close |
+| `action-board-cards.js` | Tab navigation, card grid, skeleton loading, report panel, per-group refresh with cooldown |
 | `action-board-report.js` | Iframe pagination, page range, prev/next controls |
 | `action-board-grid.js` | Client-side grid pagination, action button enhancement |
 | `action-board-common.css` | CSS reset, theme variables, shimmer animation, toast styling |
 | `action-board-cards.css` | Header, tabs, card grid, cards, skeleton, error, empty state |
 | `action-board-report.css` | Report panel, pagination, table skeleton, iframe transition |
 | `action-board-table.css` | Grid table, pagination, empty state, action buttons |
-| `ActionBoardController.cs` | Dashboard requests, report navigation, form links |
-| `ActionBoardService.cs` | Business logic, DB queries |
+| `ActionBoardController.cs` | Dashboard requests, report navigation, form links, path routing |
+| `ActionBoardService.cs` | Business logic, DB queries (GetCards, GetNavigationTabs, Frequency) |
 ---
 
 # Architecture
@@ -118,8 +119,22 @@ _ActionBoard/
 
 ---
 
+## Refresh Button
 
+A per-group refresh button in the header with cooldown timer.
 
+| Aspect | Detail |
+|--------|--------|
+| **Location** | Header before theme toggle (`#refreshBtn`) |
+| **Cooldown** | `min(Frequency of active tab's cards) / 4` minutes (default 5) |
+| **Storage** | Per-group `localStorage` key: `ab_lastRefresh_{groupId}` |
+| **Locked click** | Toast with 3500ms dismiss timer (resets on spam click) |
+| **Toast messages** | "Next refresh in 1h 15m" / "Refresh ready" |
+| **CSS** | `var(--text-primary)` color, `0.35` opacity when disabled |
+| **Frequency field** | `PendingTaskCard.Frequency`, fetched from `ActionBoardConfig.Frequency` |
+| **JS functions** | `bindRefreshButton()`, `updateRefreshButtonState()`, `getRefreshCooldownMs()`, `formatDuration()` |
+
+---
 
 # Technology Stack
 

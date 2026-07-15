@@ -39,6 +39,7 @@ namespace RSuite.UserInterface.Web.Mvc.Models.Common.ActionBoard
         public string CardType { get; set; }
         public int ReportId { get; set; }
         public decimal Amount { get; set; }
+        public int Frequency { get; set; }  // in minutes, 0 = no cooldown for refresh btn
 
     }
 }

@@ -21,6 +21,9 @@
     var retryCount = 0;
     var maxRetries = 3;
     var tabTimer = null;
+    var refreshCooldownTimer = null;  // timer to re-enable refresh button
+    var currentFrequencies = [];      // Frequency values of active tab's cards
+    var lockedToast = { timer: null, el: null };  // tracks locked-toast for timer reset
 
     /* ==========================================
        CARD GRID INITIALISATION
@@ -39,6 +42,30 @@
         } catch (e) {
             return 0;
         }
+    }
+
+    /* ------------------------------------------
+       getRefreshCooldownMs() — returns cooldown
+       in ms = min(Frequency) / 4. Default 5 min.
+       ------------------------------------------ */
+    function getRefreshCooldownMs() {
+        var valid = currentFrequencies.filter(function(f) { return f > 0; });
+        var minFreq = valid.length > 0 ? Math.min.apply(null, valid) : 5;
+        return (minFreq / 4) * 60 * 1000;
+    }
+
+    /* ------------------------------------------
+       formatDuration(m) — converts minutes to
+       "X hours Y minutes" string. Omits hours
+       if 0, omits minutes if 0.
+       ------------------------------------------ */
+    function formatDuration(minutes) {
+        var h = Math.floor(minutes / 60);
+        var m = minutes % 60;
+        var parts = [];
+        if (h > 0) parts.push(h + ' hour' + (h > 1 ? 's' : ''));
+        if (m > 0) parts.push(m + ' minute' + (m > 1 ? 's' : ''));
+        return parts.join(' ');
     }
 
     /* ------------------------------------------
@@ -72,6 +99,93 @@
             });
         } catch (e) {
         }
+    }
+
+    /* ------------------------------------------
+       bindRefreshButton() — click handler for
+       #refreshBtn. Uses per-group localStorage
+       key so each tab has its own cooldown.
+       ------------------------------------------ */
+    function bindRefreshButton() {
+        try {
+            $('#refreshBtn').on('click', function () {
+                var $btn = $(this);
+                var groupId = getActiveGroupId();
+                var storageKey = 'ab_lastRefresh_' + groupId;
+                if ($btn.hasClass('tt-refresh-disabled')) {
+                    var lastRefresh = localStorage.getItem(storageKey);
+                    if (lastRefresh) {
+                        var elapsed = Date.now() - parseInt(lastRefresh);
+                        var cooldownMs = getRefreshCooldownMs();
+                        var remaining = Math.ceil((cooldownMs - elapsed) / 60000);
+                        var msg = 'Next refresh in ' + formatDuration(remaining);
+                        clearTimeout(lockedToast.timer);
+                        if (lockedToast.el && lockedToast.el.parentNode) {
+                            lockedToast.timer = setTimeout(function () {
+                                if (lockedToast.el && lockedToast.el.parentNode) {
+                                    lockedToast.el.parentNode.removeChild(lockedToast.el);
+                                }
+                                lockedToast.el = null;
+                            }, 3500);
+                        } else {
+                            ActionBoard.showToast(msg, 'info');
+                            var c = document.getElementById('ttToastContainer');
+                            if (c) {
+                                lockedToast.el = c.lastChild;
+                                lockedToast.timer = setTimeout(function () {
+                                    if (lockedToast.el && lockedToast.el.parentNode) {
+                                        lockedToast.el.parentNode.removeChild(lockedToast.el);
+                                    }
+                                    lockedToast.el = null;
+                                }, 3500);
+                            }
+                        }
+                    }
+                    return;
+                }
+                var cooldownMs = getRefreshCooldownMs();
+                localStorage.setItem(storageKey, Date.now().toString());
+                $btn.addClass('tt-refresh-disabled');
+                var waitMin = Math.ceil(cooldownMs / 60000);
+                ActionBoard.showToast('Next refresh in ' + formatDuration(waitMin), 'info');
+                loadCards(groupId);
+                refreshCooldownTimer = setTimeout(function () {
+                    $btn.removeClass('tt-refresh-disabled');
+                    ActionBoard.showToast('Refresh ready', 'success');
+                }, cooldownMs);
+            });
+        } catch (e) { }
+    }
+
+    /* ------------------------------------------
+       updateRefreshButtonState() — reads active
+       group's cooldown from localStorage and
+       disables/enables button accordingly.
+       Called on page load and after tab switch.
+       ------------------------------------------ */
+    function updateRefreshButtonState() {
+        try {
+            clearTimeout(refreshCooldownTimer);
+            var groupId = getActiveGroupId();
+            var storageKey = 'ab_lastRefresh_' + groupId;
+            var lastRefresh = localStorage.getItem(storageKey);
+            if (!lastRefresh) {
+                $('#refreshBtn').removeClass('tt-refresh-disabled');
+                return;
+            }
+            var cooldownMs = getRefreshCooldownMs();
+            var elapsed = Date.now() - parseInt(lastRefresh);
+            if (elapsed < cooldownMs) {
+                $('#refreshBtn').addClass('tt-refresh-disabled');
+                var remaining = cooldownMs - elapsed;
+                refreshCooldownTimer = setTimeout(function () {
+                    $('#refreshBtn').removeClass('tt-refresh-disabled');
+                    ActionBoard.showToast('Refresh ready', 'success');
+                }, remaining);
+            } else {
+                $('#refreshBtn').removeClass('tt-refresh-disabled');
+            }
+        } catch (e) { }
     }
 
     /* ==========================================
@@ -151,6 +265,8 @@
                         }
                         retryCount = 0;
                         var cards = res.data;
+                        currentFrequencies = cards.map(function(c) { return c.Frequency || 0; });
+                        updateRefreshButtonState();
                         if (!cards || cards.length === 0) {
                             $('#cardGrid').html('<div class="tt-empty">No pending items</div>');
                             return;
@@ -353,6 +469,8 @@
     ActionBoard._cleanupCards = function _cleanupCards() {
         try {
             clearTimeout(tabTimer);
+            clearTimeout(refreshCooldownTimer);
+            clearTimeout(lockedToast.timer);
             $('#tabContainer').off('click', '.tt-tab');
             $('#cardGrid').off('click', '.card-run-report');
             $('#reportPanel').hide();
@@ -402,6 +520,8 @@
             baseUrl = base || (meta ? meta.getAttribute('content') : '');
             if (document.getElementById('cardGrid')) {
                 bindTabs();
+                bindRefreshButton();
+                updateRefreshButtonState();
                 var activeGroupId = getActiveGroupId();
                 loadCards(activeGroupId);
             }

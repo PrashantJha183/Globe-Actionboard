@@ -480,6 +480,15 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
         {
             try
             {
+                var cfgDs = new DataSet();
+                _dal.RunQuery("SELECT ActionBoardGroupId, SequenceNo FROM ActionBoardConfig WHERE ActionBoardConfigId = " + configId, ref cfgDs);
+                if (cfgDs.Tables.Count > 0 && cfgDs.Tables[0].Rows.Count > 0)
+                {
+                    var cr = cfgDs.Tables[0].Rows[0];
+                    if (Convert.ToInt32(cr["ActionBoardGroupId"]) == 3 && Convert.ToInt32(cr["SequenceNo"]) == 2)
+                        return Json(GetTransferApprovalNavigationResult(configId), JsonRequestBehavior.AllowGet);
+                }
+
                 var linkResult = GetLinkNavigationResult(configId);
                 if (linkResult != null)
                     return Json(linkResult, JsonRequestBehavior.AllowGet);
@@ -525,6 +534,49 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
             {
                 EntityFactory.GetInstance<IErrorLogger>().LogError("ActionBoard.GetAddUrlByLinkId", ex);
                 return Json(new { success = false, message = "An error occurred." }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        /* GetTransferApprovalNavigationResult: Path 3 — builds TransferApproval form URL for groupId=3, seqNo=2 */
+        private object GetTransferApprovalNavigationResult(int configId)
+        {
+            try
+            {
+                var cfgDs = new DataSet();
+                _dal.RunQuery("SELECT LinkId FROM ActionBoardConfig WHERE ActionBoardConfigId = " + configId, ref cfgDs);
+                if (cfgDs.Tables.Count == 0 || cfgDs.Tables[0].Rows.Count == 0)
+                    return new { success = false, message = "Config not found." };
+
+                var linkId = Convert.ToInt32(cfgDs.Tables[0].Rows[0]["LinkId"]);
+                if (linkId <= 0)
+                    return new { success = false, message = "LinkId not configured." };
+
+                var linkItem = EntityFactory.GetInstance<IQueryExecutor>()
+                    .ExecuteQuery<LinkItem>("Uid = " + linkId, 0, 0).FirstOrDefault();
+
+                if (linkItem == null || string.IsNullOrEmpty(linkItem.AddUrl))
+                    return new { success = false, message = "LinkItem or AddUrl not found." };
+
+                string queryadd = linkItem.QueryString;
+
+                var lcl = _loginContextService.GetLoginContext();
+                var fy = _financialYearService.GetFinancialYearByCode(lcl.YearCode, lcl.CompanyId);
+                var sep = linkItem.AddUrl.Contains("?") ? "&" : "?";
+
+                var url = linkItem.AddUrl + sep + "KeyId=0" + "&LinkId=" + linkId + "&FormMode=0" + queryadd + "&TermSetId=0" + "&Isredirect=1" + "&FromDate=" + Uri.EscapeDataString(fy.FinancialStartDate.ToString("dd/MM/yyyy")) + "&ToDate=" + Uri.EscapeDataString(DateTime.Now.Date.ToString("dd/MM/yyyy"));
+
+                return new
+                {
+                    success = true,
+                    url = Url.Content("~/" + url),
+                    isForm = true,
+                    windowTitle = linkItem.LinkItemName ?? "Transfer Approval"
+                };
+            }
+            catch (Exception ex)
+            {
+                EntityFactory.GetInstance<IErrorLogger>().LogError("ActionBoard.GetTransferApprovalNavigationResult", ex);
+                return new { success = false, message = "Failed to generate transfer approval link." };
             }
         }
 
