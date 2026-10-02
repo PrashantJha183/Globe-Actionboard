@@ -259,15 +259,44 @@
 
     /* ------------------------------------------
        exportFileName() — the download name.
-       Fixed constant: the file is always Fleet.xlsx.
-       SheetJS does NOT append an extension in the
-       browser save path, so the full name including
-       .xlsx is passed by initGridExport().
-       Kept as a function (rather than inlined) so the
-       name lives in exactly one place.
+       Reads the card name the server placed on the
+       button as data-export-name, which comes from
+       ViewBag.CardTitle in
+       ActionBoardItemInfoTableController.Grid. It is
+       never passed in the URL.
+
+       Sanitised here rather than in C# because this is
+       the only consumer and the value is otherwise
+       opaque to it. Card names are free text and can
+       contain characters Windows forbids in a filename
+       (\ / : * ? " < > |), which would make the
+       download fail; those become a dash. Control
+       characters are stripped, whitespace is collapsed,
+       leading/trailing dots and spaces trimmed (Windows
+       rejects those too), and the length is capped.
+
+       Falls back to a generic name when the attribute
+       is absent or empty — the card had no name, or the
+       session entry expired.
+
+       SheetJS does NOT append an extension in the browser
+       save path, so the full name including .xlsx is
+       passed by initGridExport().
        ------------------------------------------ */
     function exportFileName() {
-        return 'Fleet';
+        var btn = document.getElementById('ttGridExport');
+        var raw = btn ? (btn.getAttribute('data-export-name') || '') : '';
+
+        var name = String(raw)
+            .replace(/[\x00-\x1F\x7F]/g, '')    /* control chars */
+            .replace(/[\\/:*?"<>|]/g, '-')        /* illegal on Windows */
+            .replace(/\s+/g, ' ')                /* collapse runs of space */
+            .replace(/^[\s.]+|[\s.]+$/g, '')     /* no leading/trailing dot or space */
+            .trim();
+
+        if (!name) name = 'Report';
+        if (name.length > 100) name = name.substring(0, 100);
+        return name;
     }
 
     /* ------------------------------------------
@@ -425,8 +454,11 @@
             var btn = document.getElementById('ttGridExport');
             if (!btn) return;
 
-            /* keep the tooltip honest about the real name */
-            btn.setAttribute('title', 'Download this report as ' + exportFileName() + '.xlsx');
+            /* Keep the tooltip honest about the real name. Reads the
+               same data-export-name attribute the download uses, so the
+               user sees the card's name before clicking rather than a
+               surprise in their downloads list. */
+            btn.setAttribute('title', 'Download as ' + exportFileName() + '.xlsx');
 
             function run() {
                 if (typeof XLSX === 'undefined' || !XLSX.utils) return;

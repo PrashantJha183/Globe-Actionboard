@@ -409,8 +409,48 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
             }
         }
 
+        /* ResolveCardTitle: reads the card's display name for the Excel download.
+           The card title lives in ActionBoardConfig.ActionBoardConfigName —
+           the Report entity has no Title property (its mapping is only
+           ReportId, ReferenceLinkId, Query, Code, WhereClause), and this is
+           the same column that becomes PendingTaskCard.Title in
+           ActionBoardService.GetCards, so the export name matches the card
+           the user clicked.
+
+           Keyed on configId rather than reportId because several cards can
+           point at the same report, in which case reportId would return an
+           arbitrary one of their names.
+
+           Returns null on any failure: the title is only used to name a
+           download, so it must never break report generation. The export
+           falls back to a generic name when it gets null. */
+        private string ResolveCardTitle(int configId)
+        {
+            try
+            {
+                if (configId <= 0) return null;
+
+                var titleDs = new DataSet();
+                _dal.RunQuery("SELECT ActionBoardConfigName FROM ActionBoardConfig WHERE ActionBoardConfigId = " + configId, ref titleDs);
+
+                if (titleDs.Tables.Count == 0 || titleDs.Tables[0].Rows.Count == 0)
+                    return null;
+
+                var value = titleDs.Tables[0].Rows[0]["ActionBoardConfigName"];
+                if (value == null || value == DBNull.Value) return null;
+
+                var title = value.ToString().Trim();
+                return string.IsNullOrEmpty(title) ? null : title;
+            }
+            catch (Exception ex)
+            {
+                EntityFactory.GetInstance<IErrorLogger>().LogError("ActionBoard.ResolveCardTitle", ex);
+                return null;
+            }
+        }
+
         /* GenerateReportResultAsync: Path 2 — builds report columns, generates report, saves to session, returns URL */
-        private async Task<object> GenerateReportResultAsync(int reportId)
+        private async Task<object> GenerateReportResultAsync(int configId, int reportId)
         {
             try
             {
@@ -455,6 +495,11 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
                 };
                 SessionDataHandler.AddToCollection(addUrl, reportColumns);
 
+                /* Resolved before the background work so a slow or failing
+                   lookup cannot hold up report generation, and so the title is
+                   captured at the same moment as the data it describes. */
+                var cardTitle = ResolveCardTitle(configId);
+
                 var result = await Task.Run(() =>
                 {
                     System.Web.HttpContext.Current = ctx;
@@ -462,6 +507,14 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
                     var reportData = _reportingService.GenerateReport(reportLinkId, report.Code, report.ReportFilterColumnCollection, reportColumns);
                     var sessionKey = "AB_Rpt_" + reportId + "_" + DateTime.Now.Ticks;
                     SessionDataHandler.Save(sessionKey, reportData);
+
+                    /* Card name for the Excel download, keyed off the session
+                       entry it belongs to so it expires with the dataset and
+                       can never go stale. Read back in
+                       ActionBoardItemInfoTableController.Grid and passed to the
+                       view as ViewBag.CardTitle. Never travels in the URL. */
+                    SessionDataHandler.Save(sessionKey + "_CardTitle", cardTitle);
+
                     var url = Url.Action("Index", "Report", new { SessionKey = sessionKey, LinkId = reportLinkId, UserId = lc.UserId, ReportId = reportId });
                     return new { sessionKey, url };
                 });
@@ -496,7 +549,7 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
                 if (reportId <= 0)
                     return Json(new { success = false, message = "Invalid report configuration." }, JsonRequestBehavior.AllowGet);
 
-                var reportResult = await GenerateReportResultAsync(reportId);
+                var reportResult = await GenerateReportResultAsync(configId, reportId);
                 return Json(reportResult, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
