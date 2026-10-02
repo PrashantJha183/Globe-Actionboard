@@ -69,7 +69,7 @@
        ------------------------------------------ */
     ActionBoard.initFramePagination = function initFramePagination() {
         try {
-            var PAGE_SIZE = 15;
+            var PAGE_SIZE = 20;
             var frame = document.getElementById('panelReportFrame');
             var container = document.getElementById('ttPagination');
             if (!frame || !frame.contentWindow || !container) return;
@@ -98,6 +98,23 @@
                 win.goToPage(state.currentPage);
                 renderPagination(container, state);
             };
+        } catch (e) { }
+    };
+
+    /* ------------------------------------------
+       refreshPagination() — recomputes the page
+       buttons from the iframe's current row count.
+       Called by the grid iframe (action-board-grid.js
+       initGridSearch) after a search filter changes the
+       visible row total, so the parent's Prev/Next and
+       page numbers never disagree with what is displayed.
+       Safe to call repeatedly: initFramePagination
+       re-reads getRowCount() and clears the container
+       when the result is a single page or fewer.
+       ------------------------------------------ */
+    ActionBoard.refreshPagination = function refreshPagination() {
+        try {
+            ActionBoard.initFramePagination();
         } catch (e) { }
     };
 

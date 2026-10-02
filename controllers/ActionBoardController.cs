@@ -512,6 +512,33 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
             }
         }
 
+        //[HttpGet]
+        //public async Task<ActionResult> GetAddUrlByLinkId(int linkId)
+        //{
+        //    try
+        //    {
+        //        if (linkId <= 0)
+        //            return Json(new { success = false, message = "Invalid LinkId." }, JsonRequestBehavior.AllowGet);
+
+        //        var linkService = EntityFactory.GetInstance<ILinkService>();
+        //        LinkItem linkItem = await Task.Run(() => linkService.GetLinkItem(linkId));
+
+        //        if (linkItem == null)
+        //            return Json(new { success = false, message = "LinkItem not found." }, JsonRequestBehavior.AllowGet);
+
+        //        var linkUrlService = new LinkUrlService();
+        //        string url = linkUrlService.GetAddUrl(linkId);
+        //        return Json(new { itemUrl = url, itemId = linkId, itemName = linkItem.LinkItemName ?? "" }, JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        EntityFactory.GetInstance<IErrorLogger>().LogError("ActionBoard.GetAddUrlByLinkId", ex);
+        //        return Json(new { success = false, message = "An error occurred." }, JsonRequestBehavior.AllowGet);
+        //    }
+        //}
+
+
+
         [HttpGet]
         public async Task<ActionResult> GetAddUrlByLinkId(int linkId)
         {
@@ -520,15 +547,31 @@ namespace RSuite.UserInterface.Web.Mvc.Controllers.Common
                 if (linkId <= 0)
                     return Json(new { success = false, message = "Invalid LinkId." }, JsonRequestBehavior.AllowGet);
 
-                var linkService = EntityFactory.GetInstance<ILinkService>();
-                LinkItem linkItem = await Task.Run(() => linkService.GetLinkItem(linkId));
+                var ctx = System.Web.HttpContext.Current;
+                var lc = _loginContextService.GetLoginContext();
 
-                if (linkItem == null)
+                string itemName = null;
+
+                string url = await Task.Run(() =>
+                {
+                    System.Web.HttpContext.Current = ctx;
+                    setlogincontext(lc);
+
+                    var linkService = EntityFactory.GetInstance<ILinkService>();
+                    LinkItem linkItem = linkService.GetLinkItem(linkId);
+                    if (linkItem == null)
+                        return null;
+
+                    itemName = linkItem.LinkItemName ?? "";
+
+                    var linkUrlService = new LinkUrlService();
+                    return linkUrlService.GetAddUrl(linkId);
+                });
+
+                if (url == null)
                     return Json(new { success = false, message = "LinkItem not found." }, JsonRequestBehavior.AllowGet);
 
-                var linkUrlService = new LinkUrlService();
-                string url = linkUrlService.GetAddUrl(linkId);
-                return Json(new { itemUrl = url, itemId = linkId, itemName = linkItem.LinkItemName ?? "" }, JsonRequestBehavior.AllowGet);
+                return Json(new { itemUrl = url, itemId = linkId, itemName = itemName ?? "" }, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {

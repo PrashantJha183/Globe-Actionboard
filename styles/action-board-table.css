@@ -5,6 +5,256 @@
    Used by: ActionBoardView, ActionBoardItemInfoTableView
 ========================================== */
 
+/* ==========================================
+   GRID SEARCH TOOLBAR — Liquid Glass
+   Client-side search across all columns.
+   Rendered by ActionBoardItemInfoTableView.
+   ========================================== */
+
+.tt-grid-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 2px 4px 14px;
+  animation: tt-grid-toolbar-enter 0.3s ease forwards;
+}
+
+/* NOTE ON LOCAL KEYFRAMES BELOW
+   This file is loaded standalone by the report iframe
+   (ActionBoardItemInfoTableView.cshtml links only
+   action-board-common.css and action-board-table.css),
+   so keyframes from action-board-report.css and
+   action-board-cards.css are NOT available there. Referencing
+   tt-skel-enter / tt-card-enter by name fails silently — no
+   parse error, animation simply never runs.
+   The two @keyframes defined below mirror the bodies of
+   tt-skel-enter and tt-card-enter exactly, so the motion is
+   identical to the table and cards. Names are kept distinct
+   so they cannot collide with the parent page's copies. */
+
+@keyframes tt-grid-toolbar-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tt-grid-search-wrap {
+  position: relative;
+  flex: 1;
+  max-width: 380px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.42);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    0 4px 12px rgba(15, 23, 42, 0.06);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tt-grid-search-wrap:focus-within {
+  border-color: var(--active-tab);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* Top-half sheen, identical to .tt-grid-action-btn and
+   .tt-grid-export-btn — this is the lit-from-above effect
+   that makes the glass read as liquid. Uses ::before
+   because ::after is already the shimmer sweep. Radius is
+   12px to match this element; the buttons use 10px. */
+.tt-grid-search-wrap::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0)
+  );
+  pointer-events: none;
+}
+
+/* Shimmer sweep, same keyframes and timing as the
+   loading skeleton (tt-shimmer, 1.5s infinite). */
+.tt-grid-search-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  animation: tt-shimmer 1.5s infinite;
+  pointer-events: none;
+}
+
+.tt-grid-search {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 9px 32px 9px 34px;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+  outline: none;
+}
+
+.tt-grid-search::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.75;
+}
+
+.tt-grid-search-icon,
+.tt-grid-search-clear {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  color: var(--text-secondary);
+  font-size: 13px;
+  pointer-events: none;
+  transition: color 0.3s ease;
+}
+
+.tt-grid-search-icon {
+  left: 12px;
+}
+
+.tt-grid-search-clear {
+  right: 12px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.tt-grid-search-clear:hover {
+  color: var(--text-primary);
+}
+
+.tt-grid-search-count {
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+/* ==========================================
+   GRID EXPORT BUTTON — Liquid Glass
+   Pinned to the right end of the toolbar via
+   margin-left:auto; .tt-grid-toolbar is
+   display:flex, so the free space is absorbed
+   here and the search box + count stay left.
+   Same recipe as .tt-grid-action-btn, and the
+   ::before sheen is identical to it.
+   ========================================== */
+
+.tt-grid-export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    margin-left: auto;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.42);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7), 0 4px 12px rgba(15, 23, 42, 0.06);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+}
+
+.tt-grid-export-btn::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  border-radius: 10px 10px 0 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+.tt-grid-export-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    0 6px 16px rgba(15, 23, 42, 0.1);
+}
+
+.tt-grid-export-btn:active {
+  transform: translateY(0);
+}
+
+.tt-grid-export-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.tt-grid-export-btn i {
+  font-size: 13px;
+}
+
+[data-theme="dark"] .tt-grid-export-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .tt-grid-export-btn::before {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+}
+
+[data-theme="dark"] .tt-grid-search-wrap {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .tt-grid-search-wrap::before {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0)
+  );
+}
+
+[data-theme="dark"] .tt-grid-search-wrap:focus-within {
+  border-color: var(--active-tab);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.08),
+    0 0 0 3px rgba(96, 165, 250, 0.16);
+}
+
+[data-theme="dark"] .tt-grid-search-wrap::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+}
+
+/* ==========================================
+   GRID TABLE
+   ========================================== */
+
 .tt-grid-table-wrap {
   background: var(--card-surface);
   transition: background 0.3s ease;
@@ -71,6 +321,28 @@
 .tt-grid-table tbody tr:hover {
   background: rgba(255, 255, 255, 0.06);
   transform: translateY(-1px);
+}
+
+/* Search result reveal — same motion as .tt-card
+   (translateY 12px, 0.3s ease), so filtering feels
+   identical to cards appearing. 'backwards' (not
+   'forwards') keeps a staggered row invisible during its
+   delay instead of flashing at opacity 0 for one frame.
+   Locally defined because the iframe does not load
+   action-board-cards.css — see note at the top of file. */
+.tt-grid-table tbody tr.tt-row-reveal {
+  animation: tt-row-reveal 0.3s ease backwards;
+}
+
+@keyframes tt-row-reveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tt-grid-table tbody tr.tt-row-reveal {
+    animation: none;
+  }
 }
 
 .tt-grid-table tbody tr:nth-child(even) {

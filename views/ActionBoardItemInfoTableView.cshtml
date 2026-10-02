@@ -8,6 +8,7 @@
     <meta name="addurl-endpoint" content="@Url.Action("GetAddUrlByLinkId", "ActionBoard")" />
     @Scripts.Render("~/bundles/jquery")
     <script src="~/_ActionBoard/scripts/action-board-core.js"></script>
+    <script src="~/_ActionBoard/scripts/xlsx.mini.min.js"></script>
     <script src="~/_ActionBoard/scripts/action-board-grid.js"></script>
     <link href="~/Scripts/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
     <link href="~/_ActionBoard/styles/action-board-common.css" rel="stylesheet" />
@@ -20,7 +21,21 @@
         {
             if (dt.Rows.Count == 0) { continue; }
             tblIdx++;
-            <div class="tt-grid-table-wrap">
+            if (tblIdx == 1)
+            {
+                <div class="tt-grid-toolbar">
+                    <div class="tt-grid-search-wrap">
+                        <i class="fa fa-search tt-grid-search-icon"></i>
+                        <input type="text" id="ttGridSearch" class="tt-grid-search" placeholder="Search all columns..." autocomplete="off" />
+                        <i class="fa fa-times tt-grid-search-clear" id="ttGridSearchClear" title="Clear search"></i>
+                    </div>
+                    <span id="ttGridSearchCount" class="tt-grid-search-count"></span>
+                    <button type="button" id="ttGridExport" class="tt-grid-export-btn">
+                        <i class="fa fa-file-excel-o"></i><span>Export to Excel</span>
+                    </button>
+                </div>
+            }
+        <div class="tt-grid-table-wrap">
                 <table class="tt-grid-table" data-tbl-idx="@tblIdx">
                     <thead>
                         <tr>
@@ -58,6 +73,8 @@
             if (gridMeta) window._addUrlByLinkIdEndpoint = gridMeta.getAttribute('content');
             if (document.querySelector('.tt-grid-table')) {
                 ActionBoard.initGridPagination();
+                ActionBoard.initGridSearch();
+                ActionBoard.initGridExport();
                 ActionBoard.enhanceGridActionButtons();
             }
         });
